@@ -52,3 +52,22 @@ frequency. The output should be the same to that of the following bash program:
 
 cat $1 | tr -cs 'a-zA-Z' '[\n*]' | grep -v "^$" | tr '[:upper:]' '[:lower:]'| sort | uniq -c | sort -nr | head -20
 ```
+
+This script is in `target.sh`.
+
+# Test
+
+`test.sh` tests the code and generates HTML coverage report. Coverage is 86%.
+
+# Build
+
+`go build -o bin .`
+
+There is a Dockerfile in exercise.
+
+Build: `docker build . -t bin`
+
+Run: `docker run bin:latest /app/mobydick.txt 20`
+
+The text itself is copied in Docker container. I can't find a way to pass files to container.
+For now I'll leave it as is.

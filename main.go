@@ -7,6 +7,7 @@ import (
 	"log"
 	"os"
 	"sort"
+	"strconv"
 	"strings"
 	"unicode"
 )
@@ -24,6 +25,11 @@ func main() {
 	file, err := os.Open(os.Args[1])
 	if err != nil {
 		log.Fatalf("failed to open file: %v\n", err)
+	}
+	// if there is need in control how many results to output
+	threshold, err := strconv.Atoi(os.Args[2])
+	if err != nil {
+		threshold = 20
 	}
 	defer file.Close()
 	var entries []Entry
@@ -44,7 +50,7 @@ func main() {
 	}
 	// sort in ascending order
 	sort.Slice(entries, func(i, j int) bool { return entries[i].Freq > entries[j].Freq })
-	for i := 0; i < 20; i++ {
+	for i := 0; i < threshold; i++ {
 		fmt.Printf("%7d %-5s\n", entries[i].Freq, entries[i].Word)
 	}
 }
