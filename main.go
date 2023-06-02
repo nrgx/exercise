@@ -2,13 +2,12 @@ package main
 
 import (
 	"bufio"
+	"bytes"
 	"fmt"
 	"io"
 	"log"
 	"os"
 	"sort"
-	"strconv"
-	"strings"
 	"unicode"
 )
 
@@ -26,16 +25,11 @@ func main() {
 	if err != nil {
 		log.Fatalf("failed to open file: %v\n", err)
 	}
-	// if there is need in control how many results to output
-	threshold, err := strconv.Atoi(os.Args[2])
-	if err != nil {
-		threshold = 20
-	}
 	defer file.Close()
 	var entries []Entry
 	reader := bufio.NewReader(file)
 	for {
-		line, err := reader.ReadString('\n')
+		line, err := reader.ReadBytes('\n')
 		if err != nil && err != io.EOF {
 			log.Fatalf("corrupted file: %v\n", err)
 		}
@@ -43,34 +37,34 @@ func main() {
 			break
 		}
 		line = process(line)
-		words := strings.Fields(line)
+		words := bytes.Fields(line)
 		for i := range words {
 			incrEntry(&entries, words[i])
 		}
 	}
 	// sort in ascending order
 	sort.Slice(entries, func(i, j int) bool { return entries[i].Freq > entries[j].Freq })
-	for i := 0; i < threshold; i++ {
+	for i := 0; i < 20; i++ {
 		fmt.Printf("%7d %-5s\n", entries[i].Freq, entries[i].Word)
 	}
 }
 
 // cleans line from non-alphabetic chars and lowers them
-func process(s string) string {
-	var result strings.Builder
+func process(s []byte) []byte {
+	var result bytes.Buffer
 	for _, char := range s {
-		if unicode.IsLetter(char) {
-			result.WriteRune(unicode.ToLower(char))
+		if unicode.IsLetter(rune(char)) {
+			result.WriteRune(unicode.ToLower(rune(char)))
 		} else {
 			result.WriteRune(' ')
 		}
 	}
-	return result.String()
+	return result.Bytes()
 }
 
-func incrEntry(entries *[]Entry, word string) {
+func incrEntry(entries *[]Entry, word []byte) {
 	for i := range *entries {
-		if string((*entries)[i].Word) == word {
+		if bytes.Equal((*entries)[i].Word, word) {
 			(*entries)[i].Freq++
 			return
 		}

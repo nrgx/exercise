@@ -12,18 +12,18 @@ import (
 
 func TestProcess(t *testing.T) {
 	testCases := []struct {
-		input    string
-		expected string
+		input    []byte
+		expected []byte
 	}{
-		{"Hello, World!", "hello  world "},
-		{"123ABCxyz", "   abcxyz"},
-		{"!@#$%^&*()", "          "},
-		{"Lorem Ipsum", "lorem ipsum"},
+		{[]byte("Hello, World!"), []byte("hello  world ")},
+		{[]byte("123ABCxyz"), []byte("   abcxyz")},
+		{[]byte("!@#$%^&*()"), []byte("          ")},
+		{[]byte("Lorem Ipsum"), []byte("lorem ipsum")},
 	}
 
 	for _, tc := range testCases {
 		actual := process(tc.input)
-		if actual != tc.expected {
+		if !bytes.Equal(actual, tc.expected) {
 			t.Errorf("process(%q) = %q, expected %q", tc.input, actual, tc.expected)
 		}
 	}
@@ -35,7 +35,7 @@ func TestIncrEntry(t *testing.T) {
 		{Word: []byte("world"), Freq: 1},
 	}
 
-	incrEntry(&entries, "hello")
+	incrEntry(&entries, []byte("hello"))
 	expected := []Entry{
 		{Word: []byte("hello"), Freq: 3},
 		{Word: []byte("world"), Freq: 1},
@@ -45,7 +45,7 @@ func TestIncrEntry(t *testing.T) {
 		t.Errorf("Unexpected result after incrementing entry")
 	}
 
-	incrEntry(&entries, "new")
+	incrEntry(&entries, []byte("new"))
 	expected = append(expected, Entry{Word: []byte("new"), Freq: 1})
 
 	if !entriesEqual(entries, expected) {
@@ -66,8 +66,10 @@ func entriesEqual(entries1, entries2 []Entry) bool {
 }
 
 func TestMain(t *testing.T) {
+	// Just copied alphabet letters 8 times because removed threshold variable in main.
+	// Outputs only 20 letters in order.
+	fileContent := "a\nb\nc\nd\ne\nf\ng\nh\ni\nj\nk\nl\nm\nn\no\np\nq\nr\ns\nt\nu\nv\nw\nx\ny\nz\na\nb\nc\nd\ne\nf\ng\nh\ni\nj\nk\nl\nm\nn\no\np\nq\nr\ns\nt\nu\nv\nw\nx\ny\nz\na\nb\nc\nd\ne\nf\ng\nh\ni\nj\nk\nl\nm\nn\no\np\nq\nr\ns\nt\nu\nv\nw\nx\ny\nz\na\nb\nc\nd\ne\nf\ng\nh\ni\nj\nk\nl\nm\nn\no\np\nq\nr\ns\nt\nu\nv\nw\nx\ny\nz\na\nb\nc\nd\ne\nf\ng\nh\ni\nj\nk\nl\nm\nn\no\np\nq\nr\ns\nt\nu\nv\nw\nx\ny\nz\na\nb\nc\nd\ne\nf\ng\nh\ni\nj\nk\nl\nm\nn\no\np\nq\nr\ns\nt\nu\nv\nw\nx\ny\nz\na\nb\nc\nd\ne\nf\ng\nh\ni\nj\nk\nl\nm\nn\no\np\nq\nr\ns\nt\nu\nv\nw\nx\ny\nz\na\nb\nc\nd\ne\nf\ng\nh\ni\nj\nk\nl\nm\nn\no\np\nq\nr\ns\nt\nu\nv\nw\nx\ny\nz\n"
 	// Create a tmp file for testing purposes
-	fileContent := "Hello, World!\nHello, Go World!\n"
 	file, err := os.CreateTemp("", "testfile")
 	if err != nil {
 		t.Fatalf("Failed to create test file: %v", err)
@@ -76,15 +78,31 @@ func TestMain(t *testing.T) {
 	file.WriteString(fileContent)
 	file.Close()
 
-	// Arguments to run program. Bc of small input (3 words) it'll panic so I put threshold value that limits execution.
-	os.Args = []string{"", file.Name(), "3"}
+	os.Args = []string{"", file.Name()}
 
 	// Actual result returns formated code, should be the same in expected.
 	expectedOutput := fmt.Sprintf(
-		"%s%s%s",
-		fmt.Sprintf("%7d %-5s\n", 2, "hello"),
-		fmt.Sprintf("%7d %-5s\n", 2, "world"),
-		fmt.Sprintf("%7d %-5s\n", 1, "go"),
+		"%s%s%s%s%s%s%s%s%s%s%s%s%s%s%s%s%s%s%s%s",
+		fmt.Sprintf("%7d %-5s\n", 8, "a"),
+		fmt.Sprintf("%7d %-5s\n", 8, "b"),
+		fmt.Sprintf("%7d %-5s\n", 8, "c"),
+		fmt.Sprintf("%7d %-5s\n", 8, "d"),
+		fmt.Sprintf("%7d %-5s\n", 8, "e"),
+		fmt.Sprintf("%7d %-5s\n", 8, "f"),
+		fmt.Sprintf("%7d %-5s\n", 8, "g"),
+		fmt.Sprintf("%7d %-5s\n", 8, "h"),
+		fmt.Sprintf("%7d %-5s\n", 8, "i"),
+		fmt.Sprintf("%7d %-5s\n", 8, "j"),
+		fmt.Sprintf("%7d %-5s\n", 8, "k"),
+		fmt.Sprintf("%7d %-5s\n", 8, "l"),
+		fmt.Sprintf("%7d %-5s\n", 8, "m"),
+		fmt.Sprintf("%7d %-5s\n", 8, "n"),
+		fmt.Sprintf("%7d %-5s\n", 8, "o"),
+		fmt.Sprintf("%7d %-5s\n", 8, "p"),
+		fmt.Sprintf("%7d %-5s\n", 8, "q"),
+		fmt.Sprintf("%7d %-5s\n", 8, "r"),
+		fmt.Sprintf("%7d %-5s\n", 8, "s"),
+		fmt.Sprintf("%7d %-5s\n", 8, "t"),
 	)
 	actualOutput := captureOutput(func() { main() })
 
